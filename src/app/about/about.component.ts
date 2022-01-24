@@ -28,20 +28,43 @@ export class AboutComponent implements OnInit {
 
     ngOnInit() {
 
-      // DEFINITION BLUEPRINT
-      const interval$ = timer(3000, 1000);
+      // // DEFINITION BLUEPRINT
+      // const interval$ = timer(3000, 1000);
+      //
+      // const sub = interval$.subscribe(val => console.log('Stream 1 => ' + val));
+      // setTimeout(() => sub.unsubscribe(), 5000);
+      //
+      // // DEFINITION BLUEPRINT
+      // const click$ = fromEvent(document, 'click');
+      //
+      // click$.subscribe(
+      //   event => console.log(event),
+      //   err => console.log('Oh no....', err),
+      //   () => ('Stream is completed...')
+      // );
 
-      const sub = interval$.subscribe(val => console.log('Stream 1 => ' + val));
-      setTimeout(() => sub.unsubscribe(), 5000);
+      const http$ = new Observable(observer => {
+        fetch('/api/courses')
+          .then(response => {
+            return response.json();
+          })
+          .then(body => {
+            // @ts-ignore
+            observer.next(body);
+            // @ts-ignore
+            observer.complete(body);
+        })
+          .catch(err => {
+            observer.error(err);
+          });
+      });
 
-      // DEFINITION BLUEPRINT
-      const click$ = fromEvent(document, 'click');
-
-      click$.subscribe(
-        event => console.log(event),
-        err => console.log('Oh no....', err),
-        () => ('Stream is completed...')
+      http$.subscribe(
+        val => console.log(val),
+        noop,
+        () => console.log('Completed')
       );
+
 
     }
 
