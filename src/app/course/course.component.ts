@@ -53,8 +53,11 @@ export class CourseComponent implements OnInit, AfterViewInit {
         const searchLessons$ =  fromEvent<any>(this.input.nativeElement, 'keyup')
             .pipe(
                 map(event => event.target.value),
+                // Ovde se ceka za da zavrsi pisuvajneto nekako za da nebidi sekoj key new request
+                // Ova e za stable values
                 debounceTime(400),
                 distinctUntilChanged(),
+                // Transforming to BE request
                 switchMap(search => this.loadLessons(search))
             );
 

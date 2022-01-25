@@ -39,37 +39,42 @@ export class AboutComponent implements OnInit {
       //
       // click$.subscribe(
       //   event => console.log(event),
-      //   err => console.log('Oh no....', err),
-      //   () => ('Stream is completed...')
+       //   () => ('Stream is completed...')
       // );
 
-      const http$ = new Observable(observer => {
-        fetch('/api/courses')
-          .then(response => {
-            return response.json();
-          })
-          .then(body => {
-            // @ts-ignore
-            observer.next(body);
-            // @ts-ignore
-            observer.complete(body);
-        })
-          .catch(err => {
-            observer.error(err);
-          });
-      });
+      const http$ = createHttpObservable('/api/courses');
 
-      http$.subscribe(
-        val => console.log(val),
+      const courses$ = http$
+        .pipe(
+          map(res => Object.values(res['payload']) )
+        );
+
+      courses$.subscribe(
+        course => console.log(course),
         noop,
         () => console.log('Completed')
       );
 
+      // const subject = new Subject();
+      const subject = new BehaviorSubject(0);
 
-    }
+      // This observable is emiting the values of subject
+      const series$ = subject.asObservable();
+      series$.subscribe(val => console.log('early sub:' + val));
+
+      subject.next(1);
+      subject.next(2);
+      subject.next(3);
+      // subject.complete();
+
+      setTimeout(() => {
+        series$.subscribe(val => console.log('late sub:' + val));
+        subject.next(4);
+      }, 3000);
 
 
-}
+
+}}
 
 
 
